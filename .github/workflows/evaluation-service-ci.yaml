@@ -98,7 +98,7 @@ jobs:
           gosec -severity high -confidence high ./...
 
       - name: "SCA — Trivy FS Scan (Bloqueio em Vulnerabilidades CRITICAL)"
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: "fs"
           scan-ref: "./evaluation-service"
@@ -151,7 +151,7 @@ jobs:
                        -t ${{ steps.vars.outputs.ecr_uri }}:latest .
 
       - name: "Container Scan — Trivy Image (Bloqueio em CRITICAL)"
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: "${{ steps.vars.outputs.ecr_uri }}:${{ steps.vars.outputs.image_tag }}"
           format: "table"
