@@ -39,7 +39,7 @@ variable "node_instance_types" {
 variable "desired_size" {
   description = "Quantidade desejada de nós"
   type        = number
-  default     = 2
+  default     = 3
 }
 
 variable "min_size" {
@@ -51,5 +51,5 @@ variable "min_size" {
 variable "max_size" {
   description = "Quantidade máxima de nós"
   type        = number
-  default     = 4
+  default     = 5
 }
