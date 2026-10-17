@@ -19,7 +19,7 @@ permissions:
 env:
   SERVICE_NAME: evaluation-service
   AWS_REGION: us-east-1
-  GO_VERSION: "1.23"
+  GO_VERSION: "1.25"
 
 jobs:
   # ============================================================================
