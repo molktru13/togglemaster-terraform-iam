@@ -1,0 +1,7 @@
+aws_region      = "us-east-1"
+project_name    = "togglemaster"
+cluster_name    = "toggle-master-cluster"
+db_username     = "postgres"
+db_password     = "CHANGE_ME_SECURE_PASSWORD"
+master_key      = "CHANGE_ME_MASTER_KEY"
+service_api_key = "tm_key_evaluation_service_secret"

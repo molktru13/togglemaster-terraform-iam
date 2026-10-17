@@ -1,0 +1,32 @@
+terraform {
+  required_version = ">= 1.10.0"
+
+  # Requisito de Estado da Fase 3:
+  # Backend Remoto no Amazon S3 com Lock nativo (use_lockfile = true)
+  backend "s3" {
+    bucket       = "togglemaster-tfstate-290528720221"
+    key          = "fase3/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
+  }
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.30"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.13"
+    }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
+  }
+}

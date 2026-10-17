@@ -1,0 +1,5 @@
+.env
+.git
+Dockerfile
+*.md
+__pycache__

@@ -1,0 +1,147 @@
+version: "3.8"
+
+services:
+  # ================= DATABASES =================
+  db-auth:
+    image: postgres:16-alpine
+    container_name: db-auth
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth_db
+    volumes:
+      - ./auth-service/db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./db-init/auth/02-insert-service-key.sql:/docker-entrypoint-initdb.d/02-insert-service-key.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db-flags:
+    image: postgres:16-alpine
+    container_name: db-flags
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: flags_db
+    volumes:
+      - ./db-init/multi/01-init.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
+      - ./flag-service/db/init.sql:/init/flags.sql:ro
+      - ./targeting-service/db/init.sql:/init/targeting.sql:ro
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d flags_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    container_name: dynamodb-local
+    command: "-jar DynamoDBLocal.jar -sharedDb"
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:8000 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ================= MICROSERVICES =================
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db-auth:5432/auth_db
+      PORT: "8001"
+      MASTER_KEY: admin-secreto-123
+    ports:
+      - "8001:8001"
+    depends_on:
+      db-auth:
+        condition: service_healthy
+
+  flag-service:
+    build: ./flag-service
+    container_name: flag-service
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db-flags:5432/flags_db
+      PORT: "8002"
+      AUTH_SERVICE_URL: http://auth-service:8001
+    ports:
+      - "8002:8002"
+    depends_on:
+      db-flags:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+
+  targeting-service:
+    build: ./targeting-service
+    container_name: targeting-service
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db-flags:5432/targeting_db
+      PORT: "8003"
+      AUTH_SERVICE_URL: http://auth-service:8001
+    ports:
+      - "8003:8003"
+    depends_on:
+      db-flags:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+
+  evaluation-service:
+    build: ./evaluation-service
+    container_name: evaluation-service
+    environment:
+      PORT: "8004"
+      REDIS_URL: redis://redis:6379
+      FLAG_SERVICE_URL: http://flag-service:8002
+      TARGETING_SERVICE_URL: http://targeting-service:8003
+      SERVICE_API_KEY: tm_key_evaluation_service_secret
+      AWS_SQS_URL: ${AWS_SQS_URL}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    ports:
+      - "8004:8004"
+    depends_on:
+      redis:
+        condition: service_healthy
+      flag-service:
+        condition: service_started
+      targeting-service:
+        condition: service_started
+
+  analytics-service:
+    build: ./analytics-service
+    container_name: analytics-service
+    environment:
+      PORT: "8005"
+      AWS_SQS_URL: ${AWS_SQS_URL}
+      AWS_DYNAMODB_TABLE: ${AWS_DYNAMODB_TABLE}
+      AWS_DYNAMODB_ENDPOINT: http://dynamodb-local:8000
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    ports:
+      - "8005:8005"
+    depends_on:
+      dynamodb-local:
+        condition: service_started

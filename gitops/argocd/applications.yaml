@@ -1,0 +1,118 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: auth-service
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/molktru13/togglemaster-terraform-iam.git
+    targetRevision: main
+    path: gitops/auth-service
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: togglemaster-auth
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: flag-service
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/molktru13/togglemaster-terraform-iam.git
+    targetRevision: main
+    path: gitops/flag-service
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: togglemaster-flags
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: targeting-service
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/molktru13/togglemaster-terraform-iam.git
+    targetRevision: main
+    path: gitops/targeting-service
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: togglemaster-targeting
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: evaluation-service
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/molktru13/togglemaster-terraform-iam.git
+    targetRevision: main
+    path: gitops/evaluation-service
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: togglemaster-evaluation
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - RespectIgnoreDifferences=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: analytics-service
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/molktru13/togglemaster-terraform-iam.git
+    targetRevision: main
+    path: gitops/analytics-service
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: togglemaster-analytics
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - RespectIgnoreDifferences=true
