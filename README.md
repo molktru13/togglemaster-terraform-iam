@@ -65,7 +65,7 @@ Na **Fase 2**, a **DevOps Solutions Inc.** aprovou a arquitetura distribuída de
 
 ---
 
-## 🎬 Vídeo de Demonstração e Calculadora de Custos AWS
+## 🎬 Vídeo de Demonstração e 🧮 Calculadora de Custos AWS
 
 - **Link do vídeo:** [https://drive.google.com/file/d/1N2lu5iUUSoomKhNZaA1giNpDtTcNbeSp/view?usp=sharing](https://drive.google.com/file/d/1N2lu5iUUSoomKhNZaA1giNpDtTcNbeSp/view?usp=sharing)
 - **Link da Estimativa (AWS Pricing Calculator):** [https://calculator.aws/#/estimate?id=0ca65cd33ce403d755fb1f4ca5d981ecb71517c9](https://calculator.aws/#/estimate?id=0ca65cd33ce403d755fb1f4ca5d981ecb71517c9)
