@@ -65,10 +65,10 @@ Na **Fase 2**, a **DevOps Solutions Inc.** aprovou a arquitetura distribuída de
 
 ---
 
-## 🎬 Vídeo de Demonstração
+## 🎬 Vídeo de Demonstração e Calculadora de Custos AWS
 
-- **Link do vídeo:**
-- (https://drive.google.com/file/d/1N2lu5iUUSoomKhNZaA1giNpDtTcNbeSp/view?usp=sharing)
+- **Link do vídeo:** [https://drive.google.com/file/d/1N2lu5iUUSoomKhNZaA1giNpDtTcNbeSp/view?usp=sharing](https://drive.google.com/file/d/1N2lu5iUUSoomKhNZaA1giNpDtTcNbeSp/view?usp=sharing)
+- **Link da Estimativa (AWS Pricing Calculator):** [https://calculator.aws/#/estimate?id=0ca65cd33ce403d755fb1f4ca5d981ecb71517c9](https://calculator.aws/#/estimate?id=0ca65cd33ce403d755fb1f4ca5d981ecb71517c9)
 
 ---
 
@@ -248,6 +248,24 @@ Invoke-RestMethod -Uri "http://$nlb/analytics/health"
    - Como o KEDA escala o `analytics-service` para `0` réplicas quando a fila SQS está vazia e o HPA escala o `evaluation-service` sob carga de CPU, configurei `ignoreDifferences` para `/spec/replicas` com `RespectIgnoreDifferences=true` nas `Application`s do ArgoCD, evitando que o Self-Heal do ArgoCD sobrescrevesse o escalonamento dinâmico.
 5. **Concorrência de Push nos Workflows GitOps:**
    - Implementei `git pull --rebase` com retentativa automática na etapa de atualização dos manifestos `gitops/*/deployment.yaml` para garantir que múltiplos pipelines rodando em paralelo não sofram conflito de push na branch `main`.
+
+---
+
+## 💰 Estimativa de Custos (AWS Pricing Calculator)
+
+- **🔗 Link Oficial da Estimativa (`us-east-1`):** [https://calculator.aws/#/estimate?id=0ca65cd33ce403d755fb1f4ca5d981ecb71517c9](https://calculator.aws/#/estimate?id=0ca65cd33ce403d755fb1f4ca5d981ecb71517c9)
+
+| Serviço AWS | Recurso Provisionado via Terraform | Especificação | Mensal (USD) |
+|---|---|---|---:|
+| **Amazon EKS** | Control Plane (`toggle-master-cluster`) | 1 Cluster Kubernetes v1.31 | `$73.00` |
+| **Amazon EC2** | Managed Node Group (`ng-standard`) | 2× `t3.small` (On-Demand) + 20 GB EBS `gp3` | `$33.57` |
+| **Amazon RDS** | 3× PostgreSQL 16 (`auth`, `flags`, `targeting`) | 3× `db.t3.micro` (Single-AZ, 20 GB `gp3`) | `$46.32` |
+| **Amazon ElastiCache** | Cluster Redis 7 (`togglemaster-redis`) | 1× `cache.t3.micro` (0.5 GiB, Standard) | `$12.41` |
+| **Amazon VPC / NAT** | NAT Gateway (`Single-AZ`) | 1× NAT Gateway + 10 GB dados processados | `$33.30` |
+| **Elastic Load Balancing** | Network Load Balancer (`ingress-nginx`) | 1× NLB Público + tráfego TCP (`0.45 GB/h`) | `$18.40` |
+| **DynamoDB + SQS** | `ToggleMasterAnalytics` + `toggle-master-events` | DynamoDB On-Demand (`5 GB`) + SQS (`1M reqs`) | `$1.65` |
+| **ECR + S3 + Secrets** | 5× ECR + S3 State + Secrets Manager | ECR (`10 GB`) + S3 Standard (`10 GB`) + 1 Secret | `$1.64` |
+| **TOTAL ESTIMADO** | **Arquitetura Completa ToggleMaster Fase 3** | **Execução 24×7 (`$0.302 / hora` sob demanda)** | **`$220.29 / mês`** |
 
 ---
 
