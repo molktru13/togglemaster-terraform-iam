@@ -65,10 +65,10 @@ Na **Fase 2**, a **DevOps Solutions Inc.** aprovou a arquitetura distribuída de
 
 ---
 
-## 🔗 Repositórios
+## 🎬 Vídeo de Demonstração
 
-- **Repositório Fase 3 (Terraform, IAM, DevSecOps & GitOps):** [https://github.com/molktru13/togglemaster-terraform-iam](https://github.com/molktru13/togglemaster-terraform-iam)
-- **Repositório Fase 2 (Referência anterior):** [https://github.com/molktru13/togglemaster-microservicos](https://github.com/molktru13/togglemaster-microservicos)
+- **Link do vídeo:**
+- (https://drive.google.com/file/d/1N2lu5iUUSoomKhNZaA1giNpDtTcNbeSp/view?usp=sharing)
 
 ---
 
