@@ -9,7 +9,7 @@
 
 ---
 
-## 👥 Participantes
+## 👤 Participante
 
 | Nome | RM | E-mail |
 |---|---|---|
@@ -125,7 +125,7 @@ Foram criados **5 workflows independentes** em `.github/workflows/` (um para cad
 
 ### 3. Entrega Contínua (CD) & GitOps com ArgoCD
 
-Abandonamos completamente o `kubectl apply` manual ou push direto via CI:
+Abandonei completamente o `kubectl apply` manual ou push direto via CI:
 
 1. ** Estrutura GitOps (`gitops/`):**
    - Pasta dedicada contendo os manifestos declarativos de cada microsserviço (`gitops/auth-service`, `gitops/flag-service`, `gitops/targeting-service`, `gitops/evaluation-service`, `gitops/analytics-service`) e as definições das 5 aplicações no ArgoCD (`gitops/argocd/applications.yaml`).
@@ -239,15 +239,15 @@ Invoke-RestMethod -Uri "http://$nlb/analytics/health"
 ## 🧠 Resumo dos Desafios Encontrados e Decisões Tomadas
 
 1. **Remediação da Vulnerabilidade Crítica em Go (`CVE-2024-45337`) e Dependências Python:**
-   - Durante a implantação do estágio **SCA com Trivy**, o scanner identificou imediatamente a vulnerabilidade **CRÍTICA** `CVE-2024-45337` (CVSS 9.1) no pacote `golang.org/x/crypto v0.20.0` do `auth-service`, além de CVEs em versões antigas do `gunicorn` e `Werkzeug` nos serviços Python. Atualizamos o Go para `1.23`, `golang.org/x/crypto` para `v0.36.0`, `golang.org/x/net` para `v0.37.0` e a stack Python para `Python 3.12-slim` com `Flask 3.1.0`, `Werkzeug 3.1.3` e `gunicorn 23.0.0`, zerando as vulnerabilidades críticas.
+   - Durante a implantação do estágio **SCA com Trivy**, o scanner identificou imediatamente a vulnerabilidade **CRÍTICA** `CVE-2024-45337` (CVSS 9.1) no pacote `golang.org/x/crypto v0.20.0` do `auth-service`, além de CVEs em versões antigas do `gunicorn` e `Werkzeug` nos serviços Python. Atualizei o Go para `1.23`, `golang.org/x/crypto` para `v0.36.0`, `golang.org/x/net` para `v0.37.0` e a stack Python para `Python 3.12-slim` com `Flask 3.1.0`, `Werkzeug 3.1.3` e `gunicorn 23.0.0`, zerando as vulnerabilidades críticas.
 2. **Adequação do Código ao SAST (`Gosec` e `Bandit`) e Linters (`golangci-lint` e `Flake8`):**
-   - O `gosec` apontou `G114` (*Use of net/http serve function that has no support for setting timeouts*) nos serviços Go. Substituímos `http.ListenAndServe` por `http.Server` configurado com `ReadHeaderTimeout: 5 * time.Second`. Também substituímos o pacote depreciado `io/ioutil` por `io.ReadAll`.
+   - O `gosec` apontou `G114` (*Use of net/http serve function that has no support for setting timeouts*) nos serviços Go. Substituí `http.ListenAndServe` por `http.Server` configurado com `ReadHeaderTimeout: 5 * time.Second`. Também substituí o pacote depreciado `io/ioutil` por `io.ReadAll`.
 3. **Eliminação de Credenciais em Texto Plano no Git (Terraform → Secrets Manager & K8s Secrets):**
    - Para resolver a falha de segurança da Fase 2 onde senhas ficavam em arquivos YAML versionados, o módulo `rds` grava as credenciais no **AWS Secrets Manager** e o módulo `argocd` injeta os `Secret`s diretamente nos namespaces do EKS via provider `kubernetes` do Terraform. Assim, a pasta `gitops/` contém apenas manifestos seguros sem nenhuma credencial exposta.
 4. **Convivência entre ArgoCD GitOps e Autoscalers (HPA e KEDA):**
-   - Como o KEDA escala o `analytics-service` para `0` réplicas quando a fila SQS está vazia e o HPA escala o `evaluation-service` sob carga de CPU, configuramos `ignoreDifferences` para `/spec/replicas` com `RespectIgnoreDifferences=true` nas `Application`s do ArgoCD, evitando que o Self-Heal do ArgoCD sobrescrevesse o escalonamento dinâmico.
+   - Como o KEDA escala o `analytics-service` para `0` réplicas quando a fila SQS está vazia e o HPA escala o `evaluation-service` sob carga de CPU, configurei `ignoreDifferences` para `/spec/replicas` com `RespectIgnoreDifferences=true` nas `Application`s do ArgoCD, evitando que o Self-Heal do ArgoCD sobrescrevesse o escalonamento dinâmico.
 5. **Concorrência de Push nos Workflows GitOps:**
-   - Implementamos `git pull --rebase` com retentativa automática na etapa de atualização dos manifestos `gitops/*/deployment.yaml` para garantir que múltiplos pipelines rodando em paralelo não sofram conflito de push na branch `main`.
+   - Implementei `git pull --rebase` com retentativa automática na etapa de atualização dos manifestos `gitops/*/deployment.yaml` para garantir que múltiplos pipelines rodando em paralelo não sofram conflito de push na branch `main`.
 
 ---
 
